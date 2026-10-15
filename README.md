@@ -107,9 +107,16 @@ uv tool install https://github.com/Shiphero/shbin/archive/refs/heads/main.zip
 
 ## Oh My Zsh (optional)
 
-The zsh plugin adds completions for flags, local files, and remote paths,
-plus an optional `fzf` picker. It calls the existing Python `shbin` command,
-so install that first; no extra GitHub client or authentication is needed.
+`shbin` already works in zsh. This optional plugin adds:
+
+- **Tab completion** for flags, local files, and remote paths (`shbin dl <Tab>`).
+- **Remote browsing** with `shbin ls [path] [--recursive]`.
+- **Text previews** with `shbin preview path`, without downloading.
+- **An `fzf` picker**: `shbin-pick` browses remote files, previews the
+  selected file, and downloads it on Enter.
+
+Install the Python CLI first, then clone the repo into your Oh My Zsh
+custom plugins directory:
 
 ```sh
 git clone https://github.com/Shiphero/shbin.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/shbin"
@@ -117,12 +124,9 @@ git clone https://github.com/Shiphero/shbin.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/
 
 Add `shbin` to `plugins=(... shbin)` in `~/.zshrc`.
 
-- `shbin ls [path] [--recursive]` lists repository-relative paths.
-- `shbin preview path` prints a bounded text preview.
-- `shbin-pick` uses `fzf` (if installed) to browse, preview, and download.
-
-Regular history suggestions work with `zsh-autosuggestions`, if installed
-separately. Neither `fzf` nor `zsh-autosuggestions` is required.
+The plugin uses the existing Python/PyGithub configuration. No separate
+GitHub client is needed. `fzf` is optional; history suggestions also work
+with `zsh-autosuggestions` if you already use it.
 
 ## OSX
 
