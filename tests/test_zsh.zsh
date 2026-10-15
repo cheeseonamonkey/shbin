@@ -6,7 +6,10 @@ mkdir -p "$local_dir/bin"
 cat > "$local_dir/bin/shbin" <<'STUB'
 #!/bin/sh
 case "$1" in
-  ls) printf 'notes.txt\nfolder/code.py\n' ;;
+  ls)
+    [ "${SHBIN_TEST_LIST_FAIL:-}" != 1 ] || exit 1
+    printf 'notes.txt\nfolder/code.py\n'
+    ;;
   preview) printf 'preview of %s\n' "$2" ;;
   dl) printf 'downloaded %s\n' "$2" ;;
   *) exit 1 ;;
@@ -22,4 +25,5 @@ export PATH="$local_dir/bin:$PATH"
 rehash
 [[ "$(shbin-pick)" == 'downloaded folder/code.py' ]]
 [[ "$(command shbin preview notes.txt)" == 'preview of notes.txt' ]]
+! SHBIN_TEST_LIST_FAIL=1 shbin-pick >/dev/null 2>&1
 print 'zsh plugin: PASS'

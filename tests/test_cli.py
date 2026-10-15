@@ -355,6 +355,8 @@ def test_list_recursive(patched_repo_and_user, repo, capsys):
         (b"hello\n", "hello\n"),
         (b"\x00\x01", "[binary file]\n"),
         (b"\xff\xfe", "[binary file]\n"),
+        (b"hello \x1b[31mred\x1b[0m", "hello ?[31mred?[0m"),
+        ("text\u009b31m".encode(), "text?31m"),
         (b"a" * 8193, "a" * 8192 + "\n[preview truncated]\n"),
     ],
 )

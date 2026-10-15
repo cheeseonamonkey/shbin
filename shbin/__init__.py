@@ -176,7 +176,7 @@ def preview_remote(repo, path):
     if "\x00" in content:
         sys.stdout.write("[binary file]\n")
         return
-    preview = "".join(ch if ch in "\n\t" or ord(ch) >= 32 else "?" for ch in content[:8192])
+    preview = "".join(ch if ch in "\n\t" or ch.isprintable() else "?" for ch in content[:8192])
     sys.stdout.write(preview)
     if len(content) > 8192:
         sys.stdout.write("\n[preview truncated]\n")

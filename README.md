@@ -107,32 +107,30 @@ uv tool install https://github.com/Shiphero/shbin/archive/refs/heads/main.zip
 
 ## Oh My Zsh (optional)
 
-Install the Python CLI above, then clone this repository as a custom
-[Oh My Zsh](https://ohmyz.sh/) plugin:
+The zsh plugin adds completions for flags, local files, and remote paths,
+plus an optional `fzf` picker. It calls the existing Python `shbin` command,
+so install that first; no extra GitHub client or authentication is needed.
 
 ```sh
 git clone https://github.com/Shiphero/shbin.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/shbin"
 ```
 
-Add `shbin` to `plugins=(... shbin)` in `~/.zshrc`. This adds file,
-option, and on-demand remote-path completion. The plugin works with
-`zsh-autosuggestions` (if installed) using its normal history suggestions.
+Add `shbin` to `plugins=(... shbin)` in `~/.zshrc`.
 
-Two extra commands are available:
+- `shbin ls [path] [--recursive]` lists repository-relative paths.
+- `shbin preview path` prints a bounded text preview.
+- `shbin-pick` uses `fzf` (if installed) to browse, preview, and download.
 
-- `shbin ls [path] [--recursive]`: list remote paths.
-- `shbin preview path`: print up to 8 KiB of a remote text file.
-
-With optional `fzf`, `shbin-pick` lists remote files and previews them
-before downloading. Optional ZLE widgets can be bound in `~/.zshrc`:
+The plugin also registers two **unbound** ZLE widgets. Bind them yourself
+if useful:
 
 ```sh
-bindkey '^X^S' shbin-upload-buffer     # upload the current command line
-bindkey '^X^D' shbin-insert-download  # pick a remote file; insert shbin dl
+bindkey '^X^S' shbin-upload-buffer    # Upload the current command line
+bindkey '^X^D' shbin-insert-download # Insert a picked download command
 ```
 
-All operations use the existing Python CLI and its authentication;
-the plugin does not require `gh` or add another GitHub client.
+Regular history suggestions work with `zsh-autosuggestions`, if installed
+separately. Neither `fzf` nor `zsh-autosuggestions` is required.
 
 ## OSX
 

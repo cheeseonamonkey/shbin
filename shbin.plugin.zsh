@@ -2,6 +2,7 @@
 
 _shbin_select_remote() {
   command -v fzf >/dev/null 2>&1 || { print -u2 'shbin: fzf is not installed'; return 1; }
+  setopt localoptions pipefail
   command shbin ls --recursive |
     command fzf --prompt='shbin> ' --preview='shbin preview {}' \
       --preview-window='right:50%:wrap'
