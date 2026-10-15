@@ -121,14 +121,6 @@ Add `shbin` to `plugins=(... shbin)` in `~/.zshrc`.
 - `shbin preview path` prints a bounded text preview.
 - `shbin-pick` uses `fzf` (if installed) to browse, preview, and download.
 
-The plugin also registers two **unbound** ZLE widgets. Bind them yourself
-if useful:
-
-```sh
-bindkey '^X^S' shbin-upload-buffer    # Upload the current command line
-bindkey '^X^D' shbin-insert-download # Insert a picked download command
-```
-
 Regular history suggestions work with `zsh-autosuggestions`, if installed
 separately. Neither `fzf` nor `zsh-autosuggestions` is required.
 
