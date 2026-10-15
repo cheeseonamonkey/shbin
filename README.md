@@ -105,6 +105,35 @@ To install the latest development version from the repository:
 uv tool install https://github.com/Shiphero/shbin/archive/refs/heads/main.zip
 ```
 
+## Oh My Zsh (optional)
+
+Install the Python CLI above, then clone this repository as a custom
+[Oh My Zsh](https://ohmyz.sh/) plugin:
+
+```sh
+git clone https://github.com/Shiphero/shbin.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/shbin"
+```
+
+Add `shbin` to `plugins=(... shbin)` in `~/.zshrc`. This adds file,
+option, and on-demand remote-path completion. The plugin works with
+`zsh-autosuggestions` (if installed) using its normal history suggestions.
+
+Two extra commands are available:
+
+- `shbin ls [path] [--recursive]`: list remote paths.
+- `shbin preview path`: print up to 8 KiB of a remote text file.
+
+With optional `fzf`, `shbin-pick` lists remote files and previews them
+before downloading. Optional ZLE widgets can be bound in `~/.zshrc`:
+
+```sh
+bindkey '^X^S' shbin-upload-buffer     # upload the current command line
+bindkey '^X^D' shbin-insert-download  # pick a remote file; insert shbin dl
+```
+
+All operations use the existing Python CLI and its authentication;
+the plugin does not require `gh` or add another GitHub client.
+
 ## OSX
 
 shbin depends on

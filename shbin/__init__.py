@@ -21,6 +21,8 @@ usage = """
 
 Usage:
   shbin dl <url_or_path>  
+  shbin ls [<remote-path>] [--recursive]
+  shbin preview <remote-path>
   shbin auth
   shbin (<path>... | -x | -) [-f <file-name>] [-n] [-m <message>] [-d <target-dir>] 
         [--namespace=<namespace>] [--url-link-to-pages]
@@ -29,6 +31,7 @@ Usage:
 
 Options:
   -h --help                                         Show this screen.
+  --recursive                                       List files in subdirectories too.
   -x --from-clipboard                               Paste content from clipboard instead file/s
   -n --new                                          Create a new file if the given already exists
   -f <file-name>, --file-name=<file-name>           Add name to content of clipboard
@@ -133,6 +136,52 @@ def download(url_or_path, repo, user):
         print(f"[green]✓[/green] downloaded {target}")
 
 
+def list_remote(repo, path="", recursive=False):
+    """List remote files for zsh completion or a picker."""
+    pending = [path]
+    try:
+        while pending:
+            entries = repo.get_contents(pending.pop())
+            for entry in entries if isinstance(entries, list) else [entries]:
+                if entry.type == "dir":
+                    if recursive:
+                        pending.append(entry.path)
+                    else:
+                        sys.stdout.write(f"{entry.path}/\n")
+                else:
+                    sys.stdout.write(f"{entry.path}\n")
+    except GithubException:
+        print("[red]x[/red] remote path not found", file=sys.stderr)
+        raise SystemExit(1)
+
+
+def preview_remote(repo, path):
+    """Print a bounded text preview without downloading a file."""
+    try:
+        entry = repo.get_contents(path)
+    except GithubException:
+        print("[red]x[/red] remote path not found", file=sys.stderr)
+        raise SystemExit(1)
+    if isinstance(entry, list) or entry.type == "dir":
+        print("[red]x[/red] expected a file", file=sys.stderr)
+        raise SystemExit(1)
+    if entry.size > 65536:
+        sys.stdout.write(f"[file too large to preview: {entry.size} bytes]\n")
+        return
+    try:
+        content = entry.decoded_content.decode("utf-8")
+    except UnicodeDecodeError:
+        sys.stdout.write("[binary file]\n")
+        return
+    if "\x00" in content:
+        sys.stdout.write("[binary file]\n")
+        return
+    preview = "".join(ch if ch in "\n\t" or ord(ch) >= 32 else "?" for ch in content[:8192])
+    sys.stdout.write(preview)
+    if len(content) > 8192:
+        sys.stdout.write("\n[preview truncated]\n")
+
+
 def main(argv=None) -> None:
     args = docopt(__doc__ + usage, argv, version=__version__)
 
@@ -141,6 +190,11 @@ def main(argv=None) -> None:
         return
 
     repo, user = get_repo_and_user()
+
+    if args["ls"]:
+        return list_remote(repo, args["<remote-path>"] or "", args["--recursive"])
+    if args["preview"]:
+        return preview_remote(repo, args["<remote-path>"])
 
     # resolves namespace + target-dir (without ending slash)
     # it also interpolates {user}

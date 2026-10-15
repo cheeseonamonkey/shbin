@@ -328,3 +328,50 @@ def test_download_a_file(tmp_path, patched_repo_and_user, repo):
     os.chdir(working_dir)
     main(["dl", "hello.md"])
     assert (working_dir / "hello.md").read_bytes() == b"awesome content"
+
+
+def test_list_remote(patched_repo_and_user, repo, capsys):
+    repo.get_contents.return_value = [
+        Mock(path="readme.md", type="file"),
+        Mock(path="code", type="dir"),
+    ]
+    main(["ls"])
+    assert capsys.readouterr().out == "readme.md\ncode/\n"
+    repo.get_contents.assert_called_once_with("")
+
+
+def test_list_recursive(patched_repo_and_user, repo, capsys):
+    repo.get_contents.side_effect = [
+        [Mock(path="readme.md", type="file"), Mock(path="code", type="dir")],
+        [Mock(path="code/main.py", type="file")],
+    ]
+    main(["ls", "--recursive"])
+    assert capsys.readouterr().out == "readme.md\ncode/main.py\n"
+
+
+@pytest.mark.parametrize(
+    "content, output",
+    [
+        (b"hello\n", "hello\n"),
+        (b"\x00\x01", "[binary file]\n"),
+        (b"\xff\xfe", "[binary file]\n"),
+        (b"a" * 8193, "a" * 8192 + "\n[preview truncated]\n"),
+    ],
+)
+def test_preview_remote(content, output, patched_repo_and_user, repo, capsys):
+    repo.get_contents.return_value = Mock(type="file", size=len(content), decoded_content=content)
+    main(["preview", "hello.txt"])
+    repo.get_contents.assert_called_once_with("hello.txt")
+    assert capsys.readouterr().out == output
+
+
+def test_preview_directory(patched_repo_and_user, repo):
+    repo.get_contents.return_value = [Mock(path="file.txt", type="file")]
+    with pytest.raises(SystemExit, match="1"):
+        main(["preview", "folder"])
+
+
+def test_preview_too_large(patched_repo_and_user, repo, capsys):
+    repo.get_contents.return_value = Mock(type="file", size=65537)
+    main(["preview", "large.bin"])
+    assert capsys.readouterr().out == "[file too large to preview: 65537 bytes]\n"

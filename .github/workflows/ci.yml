@@ -54,3 +54,14 @@ jobs:
           echo "Coverage Tests - ${{ steps.coverageComment.outputs.tests }}"
           echo "Coverage Time - ${{ steps.coverageComment.outputs.time }}"
           echo "Not Success Test Info - ${{ steps.coverageComment.outputs.notSuccessTestInfo }}"
+
+  zsh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install zsh
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Check zsh syntax and plugin
+        run: |
+          zsh -n shbin.plugin.zsh _shbin tests/test_zsh.zsh
+          zsh -f tests/test_zsh.zsh
