@@ -1,0 +1,52 @@
+name: Publish zshbin fork preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-zshbin-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  github-prerelease:
+    if: github.repository == 'cheeseonamonkey/shbin'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create unofficial GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="zshbin-preview-20261016"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Preview $tag already exists"
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/zshbin-notes.md" <<'NOTES'
+          Unofficial preview from [the zshbin upstream PR](https://github.com/Shiphero/shbin/pull/42). This is a fork prerelease, **not** a PyPI publication or an upstream release.
+
+          ### Oh My Zsh features
+          - Tab completion for flags, local paths, and remote files.
+          - Optional `fzf` file picker with a text preview before downloading.
+          - `shbin ls [path] [--recursive]` to browse remote files.
+          - `shbin preview path` to inspect remote text.
+          - Existing PyGithub backend and `shbin auth` setup; no `gh` dependency at runtime.
+
+          ### Install
+          ```sh
+          uv tool install "git+https://github.com/cheeseonamonkey/shbin.git@zshbin-preview-20261016"
+          git clone --branch zshbin-preview-20261016 --depth 1 https://github.com/cheeseonamonkey/shbin.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/shbin"
+          ```
+          Add `shbin` to your Oh My Zsh `plugins=(... shbin)`, then run `exec zsh`. Install `fzf` separately for `shbin-pick`; run `shbin auth` to configure the pastebin repository.
+
+          Checked on the fork CI: Python 3.8–3.13, Ruff lint/format, and the zsh smoke tests. ZLE widgets are deferred to [issue #44](https://github.com/Shiphero/shbin/issues/44).
+          NOTES
+          gh release create "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target 293e62b59a3aebd6550e3551150c1a1abb2ba82b \
+            --prerelease \
+            --title "zshbin preview — Oh My Zsh plugin (unofficial fork)" \
+            --notes-file "$RUNNER_TEMP/zshbin-notes.md"
