@@ -1,0 +1,39 @@
+#compdef shbin
+
+_shbin() {
+  local context state state_descr line remote_dir
+  local -a actions entries
+  actions=('auth:Authenticate' 'dl:Download' 'ls:List remote files' 'preview:Preview remote file')
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-x --from-clipboard)'{-x,--from-clipboard}'[Upload clipboard]' \
+    '(-n --new)'{-n,--new}'[Use unique name if file exists]' \
+    '(-p --url-link-to-pages)'{-p,--url-link-to-pages}'[Link to GitHub Pages]' \
+    '(-f --file-name)'{-f,--file-name}'[Upload filename]:name:' \
+    '(-m --message)'{-m,--message}'[Commit message]:message:' \
+    '(-d --target-dir)'{-d,--target-dir}'[Destination directory]:directory:' \
+    '--namespace=[Upload namespace]:namespace:' \
+    '--recursive[Include subdirectories when listing]' \
+    '1:command or file:->first' \
+    '*:argument:->args'
+
+  case "$state" in
+    first)
+      _describe 'commands' actions
+      _files
+      ;;
+    args)
+      case "${words[2]}" in
+        dl|ls|preview)
+          remote_dir=''
+          [[ "${words[CURRENT]}" == */* ]] && remote_dir="${words[CURRENT]%/*}"
+          entries=("${(@f)$(command shbin ls "$remote_dir" 2>/dev/null)}")
+          (( ${#entries} )) && _describe 'remote paths' entries
+          ;;
+        *) _files ;;
+      esac
+      ;;
+  esac
+}
+
+_shbin "$@"

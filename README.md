@@ -105,6 +105,29 @@ To install the latest development version from the repository:
 uv tool install https://github.com/Shiphero/shbin/archive/refs/heads/main.zip
 ```
 
+## Oh My Zsh (optional)
+
+`shbin` already works in zsh. This optional plugin adds:
+
+- **Tab completion** for flags, local files, and remote paths (`shbin dl <Tab>`).
+- **Remote browsing** with `shbin ls [path] [--recursive]`.
+- **Text previews** with `shbin preview path`, without downloading.
+- **An `fzf` picker**: `shbin-pick` browses remote files, previews the
+  selected file, and downloads it on Enter.
+
+Install the Python CLI first, then clone the repo into your Oh My Zsh
+custom plugins directory:
+
+```sh
+git clone https://github.com/Shiphero/shbin.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/shbin"
+```
+
+Add `shbin` to `plugins=(... shbin)` in `~/.zshrc`.
+
+The plugin uses the existing Python/PyGithub configuration. No separate
+GitHub client is needed. `fzf` is optional; history suggestions also work
+with `zsh-autosuggestions` if you already use it.
+
 ## OSX
 
 shbin depends on
