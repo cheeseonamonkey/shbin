@@ -34,6 +34,7 @@ jobs:
       - run: UV_PYTHON=${{ matrix.python-version }} uv run pytest --junitxml=pytest.xml --cov-report "xml:coverage.xml" --cov=shbin tests/
 
       - name: Pytest coverage comment
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
         uses: MishaKav/pytest-coverage-comment@main
         with:
           hide-report: false
