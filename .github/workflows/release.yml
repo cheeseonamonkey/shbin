@@ -9,6 +9,7 @@ permissions:
   
 jobs:
   pypi-publish:
+    if: github.repository == 'Shiphero/shbin'
     name: upload release to PyPI
     runs-on: ubuntu-latest
     permissions:
